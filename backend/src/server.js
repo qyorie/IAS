@@ -8,6 +8,7 @@ import { connect } from 'mongoose';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/post.js';
 import adminRoutes from './routes/admin.js';
+import commentRoutes from './routes/comment.js';
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Start the server
 app.listen(process.env.PORT, () => {

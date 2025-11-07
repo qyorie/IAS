@@ -11,6 +11,6 @@ export const deleteUser = async (req, res) => {
   if (!user) return res.status(404).json({ message: 'User not found' });
 
   await Post.deleteMany({ author: user._id });
-  await user.remove();
+  await User.deleteOne({ _id: user._id });
   res.json({ message: 'User and their posts deleted' });
 };
