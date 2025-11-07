@@ -1,8 +1,8 @@
 import {Route,  Routes } from 'react-router'
 
-import  Homepage from "./Pages/Homepage"
-import  CreatePage from "./Pages/CreatePage"
-import  Notedetailpage from './Pages/Notedetailpage'
+import  Homepage from "./Pages/Homepage.jsx"
+import  CreatePage from "./Pages/CreatePage.jsx"
+import  Notedetailpage from "./Pages/Notedetailpage.jsx"
 
 
 const App = () => {

@@ -6,4 +6,4 @@ const Notedetailpage = () => {
   )
 }
 
-export default Notedetailpage
+export default Notedetailpage;
