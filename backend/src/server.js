@@ -13,8 +13,7 @@ import commentRoutes from './routes/comment.js';
 dotenv.config();
 const app = express();
 
-// Connect to database
-connectDB();
+
 app.use(express.json());
 
 // Routes
@@ -23,7 +22,9 @@ app.use('/api/posts', postRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
 
-// Start the server
-app.listen(process.env.PORT, () => {
-  console.log('listening for requests on port', process.env.PORT)
+// Connect to database & start the server
+connectDB().then(() => {
+  app.listen(process.env.PORT, () => {
+    console.log('listening for requests on port', process.env.PORT)
+  });
 });
