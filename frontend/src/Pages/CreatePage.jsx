@@ -1,8 +1,11 @@
+import Navbar from "../components/Navbar"
+
 const CreatePage = () => {
   return (
-    <div>
-      Post
-    </div>
+    <>
+      <Navbar />
+      <h1>This is Create Page</h1>
+    </>
   )
 }
 
