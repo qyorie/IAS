@@ -12,18 +12,16 @@ const LoginModal = ({ show, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Make sure api is your axios instance, e.g. axios.create({ baseURL: 'http://localhost:5000/api' })
       const res = await api.post('/auth/login', formData);
 
-      // Axios stores JSON data in res.data
       const { token, user } = res.data;
 
       // Save token and role to localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('role', user?.role || 'user');
-
+      
       onClose();
-      window.location.reload(); // Refresh navbar state
+      window.location.reload();
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed');
