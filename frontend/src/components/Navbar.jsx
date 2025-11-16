@@ -1,30 +1,3 @@
-// import { Link } from 'react-router';
-// import { Plus, LogIn } from 'lucide-react';
-
-// const Navbar = () => {
-//   return (
-//     <nav className="border-b bg-neutral">
-//       <div className="mx-auto max-w-6xl p-4">
-//         <div className="flex items-center justify-between">
-//           <h1 className="btn btn-ghost text-xl">SML</h1>
-//           <div className="flex items-center gap-4">
-//             <Link to={"/create"} className="btn btn-primary rounded-full">
-//               <Plus className="size-5"/>
-//               <span>Create a Post</span>
-//             </Link>
-//             <Link to={"/create"} className="btn rounded-full">
-//               <LogIn className="size-5"/>
-//               <span>login/register</span>
-//             </Link>
-//           </div>
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// }
-
-// export default Navbar;
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoginModal from './LoginModal.jsx';
@@ -49,22 +22,32 @@ const Navbar = () => {
       <nav className="bg-gray-800 text-white">
         <div className="mx-auto max-w-6xl p-4">
           <div className="flex items-center justify-between">
-            <h1 className="btn text-xl font-semibold">SML</h1>
+            {role === 'admin' ? (
+              <>
+                <Link to="/"><img src="/logo.svg" alt="Company Logo"/></Link>
+              </>
+            ) : (
+              <>
+                <Link to="/"><img src="/logo.svg" alt="Company Logo"></img></Link>
+              </>
+            )}
+            
             <div className="space-x-4">
 
               {role === 'user' && (
                 <>
                   <Link to="/" className="hover:text-blue-400">Home</Link>
                   <Link to="/create" className="hover:text-blue-400">Create Post</Link>
-                  <Link to="/manage" className="hover:text-blue-400">Manage Posts</Link>
+                  <Link to="/manageposts" className="hover:text-blue-400">Manage Posts</Link>
                 </>
               )}
 
               {role === 'admin' && (
                 <>
                   <Link to="/" className="hover:text-blue-400">Home</Link>
-                  <Link to="/manage" className="hover:text-blue-400">Manage Posts</Link>
-                  <Link to="/users" className="hover:text-blue-400">Manage Users</Link>
+                  <Link to="/create" className="hover:text-blue-400">Create Post</Link>
+                  <Link to="/manageposts" className="hover:text-blue-400">Manage Posts</Link>
+                  <Link to="/manageusers" className="hover:text-blue-400">Manage Users</Link>
                 </>
               )}
 
@@ -83,7 +66,7 @@ const Navbar = () => {
                   Logout
                 </button>
               )}
-              </div>
+            </div>
           </div>
         </div>
       </nav>
