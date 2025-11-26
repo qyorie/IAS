@@ -43,19 +43,29 @@ export const loginUser = async (req, res) => {
     const accessToken = jwt.sign(
       {
         userInfo: {
-          "user": user.email, 
+          id: user._id.toString(),
+          "email": user.email, 
           "role": user.role 
         }
       }, process.env.JWT_SECRET, 
-      { expiresIn: '5' }
+      { expiresIn: '5m' }
     );
-    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET);
-  
+    const refreshToken = jwt.sign(
+      {
+        userInfo: {
+          id: user._id.toString(),
+          "email": user.email, 
+          "role": user.role 
+        }
+      }, process.env.JWT_REFRESH_SECRET
+    );
+      
+        
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,      // set false if testing on localhost without HTTPS
-      sameSite: 'None',  // set 'Lax' or 'Strict' if not cross-site
-      maxAge: 10 * 1000 // 5 minutes in milliseconds
+      secure: false,      // set false if testing on localhost without HTTPS
+      sameSite: 'Lax',  // set 'Lax' or 'Strict' if not cross-site
+      maxAge: 2 * 60 * 1000 // 5 minutes in milliseconds
     });
     return res.json({ accessToken });
   } catch (error) {
@@ -71,19 +81,37 @@ export const refreshAccessToken = (req, res) => {
 
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
-  jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, decode) => {
     if (err) return res.status(401).json({ message: "Refresh token expired" });
-
+    const user = decode.userInfo;
+    console.log("Refreshing token for user:", user);
     const newAccessToken = jwt.sign(
-      { id: user.id },
+      { 
+        userInfo: {
+          id: user._id.toString(),
+          "email": user.email, 
+          "role": user.role 
+        }
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "5" } // short-lived access token
+      { expiresIn: "15s" } // short-lived access token
     );
 
     res.json({ accessToken: newAccessToken });
   });
 };
 export const logoutUser = (req, res) => {
-  res.clearCookie("refreshToken", { path: "/api/auth/refresh" });
-  return res.json({ message: "Logged out" });
+  try {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,      // set false if testing on localhost without HTTPS
+      sameSite: 'None'   // set 'Lax' or 'Strict' if not cross-site
+    });
+    res.json({ message: 'Logged out successfully' });
+
+  } catch (error) {
+    console.error('Error logging out user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
+

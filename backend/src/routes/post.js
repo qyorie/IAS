@@ -17,7 +17,7 @@ router.get('/', getPosts);
 router.get('/:id', getPost);
 
 // Protected routes
-router.post('/', protect, createPost);
+router.post('/create', protect, createPost);
 router.put('/:id', protect, updatePost);
 router.delete('/:id', protect, deletePost);
 
