@@ -6,9 +6,11 @@ import  ManageUser from "./Pages/ManageUser.jsx"
 import  ManagePost from"./Pages/ManagePost.jsx"
 import Footer from './components/Footer.jsx'
 import Navbar from './components/Navbar.jsx'
+import useAuthCheck from './hooks/useAuthCheck.js'
 
 
 const App = () => {
+  useAuthCheck();
   return (
     <>
       <Navbar/>

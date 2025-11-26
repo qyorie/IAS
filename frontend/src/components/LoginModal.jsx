@@ -14,14 +14,13 @@ const LoginModal = ({ show, onClose }) => {
     try {
       const res = await api.post('/auth/login', formData);
 
-      const { token, user } = res.data;
+      const { accessToken } = res.data;
+      console.log('Login successful, accessToken:', accessToken);
 
-      // Save token and role to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', user?.role || 'user');
+      localStorage.setItem('accessToken', accessToken);
       
       onClose();
-      window.location.reload();
+      
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed');
