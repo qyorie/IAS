@@ -79,6 +79,22 @@ IAS-PROJECT/
 │ └── .env
 │
 ├── frontend/
+│  ├── public/
+│  ├── src/
+│  │  ├── api/
+│  │  ├── components/
+│  │  ├── context/
+│  │  ├── pages/
+│  │  ├── utils/
+│  │  ├── App.jsx
+│  │  ├── index.css
+│  │  └── main.jsx
+│  ├── package.json
+|  ├── package-lock.json
+|  ├── postcss.config.js
+|  ├── tailwind.config.js
+|  ├── vite.config.js
+|  └── .env
 │
 └── README.md
 ```
