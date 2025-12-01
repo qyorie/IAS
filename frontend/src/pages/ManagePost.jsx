@@ -72,9 +72,12 @@ const ManagePost = () => {
     }
 
     try {
+      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      console.log(csrf);
       await api.delete(`/posts/${postId}`, {
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
+          'X-CSRF-Token': csrf.data.csrfToken
         },
         withCredentials: true
       });
@@ -147,8 +150,8 @@ const ManagePost = () => {
                 </thead>
                 <tbody>
                   {filteredPosts.map((post) => (
-                    <tr key={post._id} className="hover:bg-gray-50">
-                      <td className="p-3 border font-medium cursor-pointer" onClick={() => handleTitleClick(post._id)}>
+                    <tr key={post._id} className="text-gray-900 hover:bg-gray-100 cursor-pointer hover:text-blue-600" onClick={() => handleTitleClick(post._id)}>
+                      <td className="p-3 border font-medium">
                         {post.title}
                       </td>
                       <td className="p-3 border text-gray-600">
@@ -163,7 +166,7 @@ const ManagePost = () => {
                       <td className="p-3 border text-sm text-gray-500">
                         {new Date(post.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="p-3 border">
+                      <td className="p-3 border" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-center space-x-2">
                           {role !== 'admin' && (
                             <button
