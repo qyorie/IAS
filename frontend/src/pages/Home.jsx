@@ -36,10 +36,12 @@ const Home = () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
 
     try {
+      const csrf = await api.get('/csrf-token');
+
       await api.delete(`http://localhost:5000/api/posts/${postId}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'X-CSRF-Token': localStorage.getItem('csrfToken')
+          'X-CSRF-Token': csrf.data.csrfToken
         }
       });
 
@@ -94,7 +96,7 @@ const Home = () => {
       <main className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-6">
           <div className='flex justify-between'>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Home Feed</h2>
+            <h2 className="text-2xl font-bold text-gray-500 mb-2">Home Feed</h2>
             {user && (
               <button>
                 <Link
