@@ -77,7 +77,6 @@ const ManageUser = () => {
             <tr className="bg-gray-900">
               <th className="p-2 border-black-500">Name</th>
               <th className="p-2 border">Email</th>
-              <th className="p-2 border">Role</th>
               <th className="p-2 border">Status</th>
               <th className="p-2 border">Actions</th>
             </tr>
@@ -87,7 +86,6 @@ const ManageUser = () => {
               <tr key={user._id} className="text-center">
                 <td className="p-2 border">{user.name}</td>
                 <td className="p-2 border">{user.email}</td>
-                <td className="p-2 border">{user.role}</td>
                 <td className="p-2 border">
                   {user.isActive ? "Active" : "Banned"}
                 </td>
