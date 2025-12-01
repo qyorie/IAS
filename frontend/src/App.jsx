@@ -1,6 +1,6 @@
 import {Route,  Routes } from 'react-router'
 import { AuthProvider } from './context/AuthContext';
-import {ProtectedRoute, AdminRoute, PublicOnlyRoute} from './components/ProtectedRoute.jsx';
+import {ProtectedRoute, AdminRoute, PublicOnlyRoute} from './utils/ProtectedRoute.jsx';
 import  Home from "./pages/Home.jsx"
 import  CreatePost from "./pages/CreatePost.jsx"
 import  ManageUser from "./pages/ManageUser.jsx"
