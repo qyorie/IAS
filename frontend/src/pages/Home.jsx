@@ -6,10 +6,12 @@ import api from '../api/axios.js';
 import PostCard from '../components/PostCard.jsx';
 
 const Home = () => {
-  const { user, logout } = useAuth(); // Get user and logout from context
+  const { user, logout, accessToken } = useAuth(); // Get user and logout from context
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   // Fetch posts from backend
   useEffect(() => {
@@ -20,7 +22,6 @@ const Home = () => {
     try {
       setLoading(true);
       const data = await api.get('http://localhost:5000/api/posts/');
-      console.log('Fetched posts:', data);
       setPosts(data.data || data);
       setError(null);
     } catch (err) {
@@ -37,7 +38,7 @@ const Home = () => {
     try {
       await api.delete(`http://localhost:5000/api/posts/${postId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Authorization': `Bearer ${accessToken}`,
           'X-CSRF-Token': localStorage.getItem('csrfToken')
         }
       });
@@ -57,13 +58,20 @@ const Home = () => {
 
   const handleLike = async (postId) => {
     try {
-      await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          'Content-Type': 'application/json'
+      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+
+      await api.post(
+        `/posts/${postId}/like`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf.data.csrfToken
+          }
         }
-      });
+      );
+
       console.log('Post liked/unliked');
     } catch (err) {
       console.error('Error liking post:', err);
@@ -85,10 +93,22 @@ const Home = () => {
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Home Feed</h2>
+          <div className='flex justify-between'>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Home Feed</h2>
+            {user && (
+              <button>
+                <Link
+                  to="/create"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Post
+                </Link>
+              </button>
+            )}
+          </div>
           <p className="text-gray-600">Latest posts from the community</p>
         </div>
-
         {/* Loading State */}
         {loading && (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">

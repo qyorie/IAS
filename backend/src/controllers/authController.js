@@ -75,6 +75,17 @@ export const loginUser = async (req, res) => {
 
 };
 
+export const getCurrentUser = async (req, res) => {
+  
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ user });
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 
 export const refreshAccessToken = (req, res) => {
   const token = req.cookies.refreshToken; // httpOnly cookie

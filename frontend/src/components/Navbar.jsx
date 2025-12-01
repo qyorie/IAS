@@ -3,25 +3,14 @@ import { Link } from 'react-router-dom';
 import LoginModal from './LoginModal.jsx';
 import RegisterModal from './RegisterModal.jsx';
 import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/axios.js';
 
 
 const Navbar = () => {
-  const accessToken = localStorage.getItem('accessToken');
-  let role = 'guest';
-  if (accessToken) {
-    try {
-      const decoded = jwtDecode(accessToken);
-      console.log(decoded);
-      role = decoded.userInfo.role; // get role from accessToken
-    } catch (err) {
-      console.error('Failed to decode token', err);
-    }
-  }
+  const { accessToken, role, setRole, setAccessToken } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-
-
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout"); // call backend to clear cookie
@@ -39,7 +28,7 @@ const Navbar = () => {
       <nav className="bg-gray-800 text-white">
         <div className="mx-auto max-w-6xl p-4">
           <div className="flex items-center justify-between">
-            {role === 'guest' || role === 'user' ? (
+            {role === 'user' ? (
               <>
                 <Link to="/"><img src="/logo.svg" alt="Company Logo"/></Link>
               </>

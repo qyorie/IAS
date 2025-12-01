@@ -5,12 +5,15 @@ import {
   getPost,
   updatePost,
   deletePost,
-  likePost
+  likePost,
+  getMyPosts
 } from '../controllers/postController.js';
 
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.get('/my-posts', protect, getMyPosts); // Get posts of logged-in user
 
 // Public routes
 router.get('/', getPosts);

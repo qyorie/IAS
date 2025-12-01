@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
-import { getAllUsers, deleteUser, getUserById, banUser, unbanUser } from '../controllers/adminController.js';
+import { getAllUsers, deleteUser, getUserById, banUser, unbanUser, deletePostByAdmin, getAllPosts } from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -9,7 +9,9 @@ const router = express.Router();
 router.use(protect, authorize('admin'));
 
 router.get('/users', getAllUsers);
+router.get('/posts', getAllPosts);
 router.delete('/users/:id', deleteUser);
+router.delete('/users/delete/post:id', deletePostByAdmin);
 router.get('/users/:id', getUserById);
 router.patch('/users/:id/ban', banUser);
 router.patch('/users/:id/unban', unbanUser);

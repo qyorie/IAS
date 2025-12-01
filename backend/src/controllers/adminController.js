@@ -52,13 +52,111 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// ===== GET ALL POSTS (ADMIN) =====
+export const getAllPosts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Optional search functionality
+    const search = req.query.search || '';
+    const searchQuery = search ? {
+      $or: [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ]
+    } : {};
+
+    const posts = await Post.find(searchQuery)
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await Post.countDocuments(searchQuery);
+
+    console.log(`[ADMIN ACTION] ${req.user.email} accessed all posts at ${new Date().toISOString()}`);
+
+    res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get all posts error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch posts'
+    });
+  }
+};
+
+// ===== DELETE POST (ADMIN) =====
+export const deletePostByAdmin = async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    // Find the post
+    const post = await Post.findById(postId).populate('author', 'name email');
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
+    }
+
+    // Store post info for logging
+    const deletedPostInfo = {
+      id: post._id,
+      title: post.title,
+      author: post.author?.email || 'Unknown',
+      deletedBy: req.user.email,
+      deletedAt: new Date().toISOString()
+    };
+
+    // Delete associated comments if you have them
+    // await Comment.deleteMany({ post: postId });
+
+    // Delete the post
+    await Post.deleteOne({ _id: postId });
+
+    // Log deletion
+    console.log('='.repeat(50));
+    console.log('[ADMIN ACTION] POST DELETION');
+    console.log(deletedPostInfo);
+    console.log('='.repeat(50));
+
+    res.json({
+      success: true,
+      message: 'Post deleted successfully',
+      deleted: {
+        postId: postId,
+        title: post.title
+      }
+    });
+  } catch (error) {
+    console.error('Delete post error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete post'
+    });
+  }
+};
+    
 // ===== DELETE USER =====
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
     
     // 1. PREVENT SELF-DELETION
-    if (userId === req.user.id || userId === req.user.id) {
+    if (userId === req.user.id || userId === req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         error: 'You cannot delete your own account'
@@ -87,7 +185,7 @@ export const deleteUser = async (req, res) => {
 
     // 4. STORE USER INFO FOR LOGGING (before deletion)
     const deletedUserInfo = {
-      id: user.id,
+      id: user._id,
       email: user.email,
       name: user.name,
       role: user.role,
@@ -99,13 +197,13 @@ export const deleteUser = async (req, res) => {
     // 5. DELETE USER'S DATA (CASCADE DELETE)
     // Use Promise.all for better performance
     const [deletedPosts, deletedComments] = await Promise.all([
-      Post.deleteMany({ author: user.id }),
-      // Comment.deleteMany({ author: user.id }), // Uncomment if you have comments
+      Post.deleteMany({ author: user._id }),
+      // Comment.deleteMany({ author: user._id }), // Uncomment if you have comments
       // Add other related data deletions here
     ]);
 
     // 6. DELETE USER
-    await User.deleteOne({ id: user.id });
+    await User.deleteOne({ _id: user._id });
 
     // 7. CRITICAL: LOG DELETION FOR AUDIT TRAIL
     console.log('='.repeat(50));
@@ -152,7 +250,7 @@ export const getUserById = async (req, res) => {
     }
 
     // Get user's post count
-    const postCount = await Post.countDocuments({ author: user.id });
+    const postCount = await Post.countDocuments({ author: user._id });
 
     console.log(`[ADMIN ACTION] ${req.user.email} viewed user ${user.email}`);
 
@@ -176,17 +274,18 @@ export const getUserById = async (req, res) => {
 
 // ===== BAN USER (Better than delete) =====
 export const banUser = async (req, res) => {
+  console.log(`Ban/Unban request by admin: ${req.user.email}`);
   try {
     const userId = req.params.id;
-    console.log('Ban userId:', req.user.id);
+    
     // Prevent self-ban
-    if (userId === req.user.id || userId === req.user.id.toString()) {
+    if (userId === req.user.id || userId === req.user._id) {
       return res.status(403).json({
         success: false,
         error: 'You cannot ban yourself'
       });
     }
-
+    console.log(`Attempting to ban/unban user with ID: ${userId}`);
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -203,23 +302,34 @@ export const banUser = async (req, res) => {
       });
     }
 
-    // Ban user
-    user.isActive = false;
-    user.bannedAt = new Date();
-    user.bannedBy = req.user.id;
+    // Toggle ban status
+    user.isActive = !user.isActive;
+    
+    if (!user.isActive) {
+      user.bannedAt = new Date();
+      user.bannedBy = req.user._id;
+      console.log(`[ADMIN ACTION] ${req.user.email} banned user ${user.email}`);
+    } else {
+      user.bannedAt = null;
+      user.bannedBy = null;
+      console.log(`[ADMIN ACTION] ${req.user.email} unbanned user ${user.email}`);
+    }
+    
     await user.save();
-
-    console.log(`[ADMIN ACTION] ${req.user.email} banned user ${user.email}`);
 
     res.json({
       success: true,
-      message: 'User banned successfully'
+      message: user.isActive ? 'User unbanned successfully' : 'User banned successfully',
+      data: {
+        userId: user._id,
+        isActive: user.isActive
+      }
     });
   } catch (error) {
-    console.error('Ban user error:', error);
+    console.error('Ban/Unban user error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to ban user'
+      error: 'Failed to update user status'
     });
   }
 };

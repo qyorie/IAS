@@ -53,7 +53,7 @@ app.use(mongoSanitize());
 // 7. Rate limiting - Prevents brute force attacks
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Max 100 requests per windowMs per IP
+  max: 500, // Max 100 requests per windowMs per IP
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -65,7 +65,7 @@ app.use('/api/', limiter);
 // Stricter rate limit for auth routes (prevent brute force login)
 const authLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minutes
-  max: 5, // Max 5 requests per windowMs
+  max: 10, // Max 5 requests per windowMs
   message: 'Too many login attempts, please try again after 1 minutes.',
   skipSuccessfulRequests: true, // Don't count successful logins
 });
@@ -82,7 +82,15 @@ const csrfProtection = csurf({
 
 // Endpoint where frontend fetches CSRF token (no CSRF needed for GET)
 app.get("/api/csrf-token", csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
+  const token = req.csrfToken();
+
+  res.cookie("XSRF-TOKEN", token, {
+    httpOnly: false,   // must be readable by frontend
+    sameSite: "strict",
+    secure: false      // true in production with HTTPS
+  });
+
+  res.json({ csrfToken: token });
 });
 
 // ===== ROUTES =====

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import LoginModal from '../components/LoginModal.jsx';
+import RegisterModal from '../components/RegisterModal.jsx';
 import api from '../api/axios.js';
 
 const PostDetail = () => {
@@ -10,6 +12,8 @@ const PostDetail = () => {
   const { user, isAuthenticated } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     fetchPost();
@@ -124,6 +128,19 @@ const PostDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header>
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="font-medium">Back to Home</span>
+          </button>
+        </div>
+      </header>
+
       {/* Post Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Login prompt for visitors */}
@@ -132,14 +149,14 @@ const PostDetail = () => {
             <p className="text-blue-900">
               <span className="font-semibold">Want to interact?</span> 
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => setShowLogin(true)}
                 className="ml-2 text-blue-600 hover:text-blue-700 font-medium underline"
               >
                 Login
               </button>
               {' '}or{' '}
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => setShowRegister(true)}
                 className="text-blue-600 hover:text-blue-700 font-medium underline"
               >
                 Sign up
@@ -246,6 +263,8 @@ const PostDetail = () => {
           </div>
         </article>
       </main>
+      <LoginModal show={showLogin} onClose={() => setShowLogin(false)} />
+      <RegisterModal show={showRegister} onClose={() => setShowRegister(false)} />
     </div>
   );
 };
