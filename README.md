@@ -112,9 +112,15 @@ CLIENT_URL=http://localhost:3000
 
 # Authentication
 JWT_SECRET= your-super-secret-key
+JWT_REFRESH_SECRET= your-super-secret-key
 ```
 ---
 ## 👨‍💻 Developers
 
 Developed by BSCS-3A
+- Troy Tristan Jacob
+- Alexander Santos
+- Michael Art Luna
+- Jennylyn Bajan
+- Marry Anne Abrasado
 For educational purposes — Information Assurance and Security (IAS1).
