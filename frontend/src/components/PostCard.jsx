@@ -12,7 +12,8 @@ const PostCard = ({ post, currentUser, onDelete, onEdit, onLike, onComment }) =>
   const [showMenu, setShowMenu] = useState(false);
   
   // Check if current user is the author
-  const isAuthor = currentUser?._id === post.author?._id || currentUser?._id === post.author || currentUser?.role === 'admin';
+  const isAuthor = currentUser?._id === post.author?._id || currentUser?._id === post.author;
+  const isAdmin = currentUser?.role === 'admin';
 
   // Content preview logic
   const MAX_LENGTH = 200; // Characters to show in preview
@@ -81,7 +82,7 @@ const PostCard = ({ post, currentUser, onDelete, onEdit, onLike, onComment }) =>
         </div>
 
         {/* Menu Button (only for author) */}
-        {isAuthor && (
+        {(isAuthor || isAdmin) &&(
           <div className="relative">
             <button
               onClick={(e) => {
@@ -102,7 +103,9 @@ const PostCard = ({ post, currentUser, onDelete, onEdit, onLike, onComment }) =>
                     setShowMenu(false);
                     if (onEdit) onEdit(post);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2"
+                  className={`w-full px-4 py-2 text-left flex items-center space-x-2 
+                  ${isAuthor ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-gray-50 text-gray-600 cursor-not-allowed'}`}
+                  disabled={isAdmin || !isAuthor}
                 >
                   <Edit size={16} />
                   <span>Edit Post</span>
@@ -113,7 +116,7 @@ const PostCard = ({ post, currentUser, onDelete, onEdit, onLike, onComment }) =>
                     setShowMenu(false);
                     if (onDelete) onDelete(post._id);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2 text-red-600"
+                  className="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center space-x-2 text-red-600"
                 >
                   <Trash2 size={16} />
                   <span>Delete Post</span>

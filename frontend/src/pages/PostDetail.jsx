@@ -23,7 +23,7 @@ const PostDetail = () => {
     try {
       setLoading(true);
       const data = await api.get(`http://localhost:5000/api/posts/${id}`);
-      console.log('Fetched post:', data);
+      // console.log('Fetched post:', data);
       setPost(data.data || data);
     } catch (err) {
       console.error('Error fetching post:', err);
@@ -58,17 +58,19 @@ const PostDetail = () => {
   const handleDelete = async () => {
     if (!isAuthenticated) {
       alert('Please login to delete posts');
-      navigate('/login');
+      navigate('/');
       return;
     }
 
     if (!window.confirm('Are you sure you want to delete this post?')) return;
 
     try {
-      await api.delete(`http://localhost:5000/api/posts/${id}`, {
+      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+
+      await api.delete(`/posts/${id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          'X-CSRF-Token': localStorage.getItem('csrfToken')
+          'X-CSRF-Token': csrf.data.csrfToken
         }
       });
       alert('Post deleted successfully!');
@@ -121,7 +123,8 @@ const PostDetail = () => {
     );
   }
 
-  const isAuthor = user?._id === post.author?._id || user?._id === post.author || user?.role === 'admin';
+  const isAuthor = user?._id === post.author?._id || user?._id === post.author;
+  const isAdmin = user?.role === 'admin';
   const userLiked = post.likes?.includes(user?._id) || false;
   const authorName = post.author?.name || 'Anonymous';
   const authorInitial = authorName.charAt(0).toUpperCase();
@@ -190,15 +193,17 @@ const PostDetail = () => {
                 </div>
               </div>
 
-              {isAuthenticated && isAuthor && (
+              {isAuthenticated && (isAuthor || isAdmin) && (
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={handleEdit}
-                    className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center space-x-2"
-                  >
-                    <Edit size={16} />
-                    <span>Edit</span>
-                  </button>
+                  {!isAdmin && (
+                    <button
+                      onClick={handleEdit}
+                      className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center space-x-2"
+                    >
+                      <Edit size={16} />
+                      <span>Edit</span>
+                    </button>
+                  )}
                   <button
                     onClick={handleDelete}
                     className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center space-x-2"
