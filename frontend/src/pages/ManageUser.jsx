@@ -1,11 +1,13 @@
 import React from 'react';
 import { ClipLoader } from "react-spinners";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import api from "../api/axios.js";
 
 const ManageUser = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { accessToken } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -34,7 +36,6 @@ const ManageUser = () => {
   const handleBan = async (userId) => {
     try {
       const csrf = await api.get('http://localhost:5000/api/csrf-token');
-      console.log("Banning user with ID:", userId);
       await api.patch(
         `/admin/users/${userId}/ban`,
         {},
@@ -56,8 +57,27 @@ const ManageUser = () => {
     }
   };
 
-  const handleDelete = (userId) => {
-    console.log("Delete user with ID:", userId);
+  const handleDelete = async (userId) => {
+    try {
+      if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      await api.delete(
+        `/admin/users/${userId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem("accessToken")}`,
+            'X-CSRF-Token': csrf.data.csrfToken
+          },
+          withCredentials: true
+        }
+      );
+
+      // Remove user locally
+      setUsers(users.filter(user => user._id !== userId
+      ));
+    }catch (error) {
+      console.error("Failed to delete user", error);
+    }
   };
 
   if (loading){
