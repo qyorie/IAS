@@ -9,7 +9,7 @@ import PostDetail from './pages/PostDetail.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Footer from './components/Footer.jsx'
 import Navbar from './components/Navbar.jsx'
-import EditPost from './components/EditPost.jsx';
+import EditPost from './pages/EditPost.jsx';
 
 
 const App = () => {
