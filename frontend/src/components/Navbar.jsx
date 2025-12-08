@@ -5,6 +5,7 @@ import RegisterModal from './RegisterModal.jsx';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/axios.js';
+import { LogOut } from 'lucide-react';
 
 
 const Navbar = () => {
@@ -67,6 +68,7 @@ const Navbar = () => {
                   onClick={handleLogout}
                   className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
                 >
+                  <LogOut className="inline-block mr-2 h-4 w-4" />
                   Logout
                 </button>
               )}
