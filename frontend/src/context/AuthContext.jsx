@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      }, { withCredentials: true });
 
       const userData = response.data.user || response.data.data;
       setUser(userData);
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
   // ------------------------
   const register = async (name, email, password) => {
     try {
-      const res = await api.post("/auth/register", { name, email, password });
+      const res = await api.post("/auth/register", { name, email, password }, {withCredentials: true});
       const token = res.data.accessToken || res.data.token;
 
       if (!token) return { success: false, error: "No token received" };

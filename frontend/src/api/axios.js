@@ -2,46 +2,53 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  withCredentials: true, // This ensures cookies are sent with every request
 });
 
-axios.interceptors.request.use((config) => {
-    const accessToken = localStorage.getItem('accessToken'); // Or from your state
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
- axios.interceptors.response.use(
-  (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-      if (error.response.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          try {
-              // Make a request to your refresh token endpoint
-              const response = await axios.get('/auth/refresh', {
-                  // Include refresh token if not in an HTTP-only cookie
-              });
-              const newAccessToken = response.data.accessToken;
-              localStorage.setItem('accessToken', newAccessToken); // Or update your state
 
-              // Update the original request with the new access token
-              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-              // Retry the original request
-              return axios(originalRequest);
-          } catch (refreshError) {
-              // Handle refresh token failure (e.g., redirect to login)
-              console.error('Refresh token failed:', refreshError);
-              // Clear tokens and redirect to login
-              localStorage.removeItem('accessToken');
-              // navigate('/login'); // Example: using React Router's navigate
-              return Promise.reject(refreshError);
-          }
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Use api instance (not axios) to include withCredentials
+        const response = await api.get('/auth/refresh');
+        
+        const newAccessToken = response.data.accessToken;
+        localStorage.setItem('accessToken', newAccessToken);
+        
+        // Update the original request with the new access token
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        
+        // Retry the original request using api instance
+        return api(originalRequest);
+      } catch (refreshError) {
+        console.error('Refresh token failed:', refreshError);
+        localStorage.removeItem('accessToken');
+        
+        // Redirect to login
+        window.location.href = '/';
+        
+        return Promise.reject(refreshError);
       }
+    }
+    
     return Promise.reject(error);
   }
 );
+
 export default api;
