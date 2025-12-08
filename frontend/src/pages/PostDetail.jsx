@@ -42,13 +42,17 @@ const PostDetail = () => {
     }
 
     try {
-      await fetch(`/posts/${id}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          'Content-Type': 'application/json'
+      await api.post(
+        `/posts/${postId}/like`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf.data.csrfToken
+          }
         }
-      });
+      );
       fetchPost(); // Refresh post data
     } catch (err) {
       console.error('Error liking post:', err);
