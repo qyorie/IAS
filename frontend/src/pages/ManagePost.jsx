@@ -73,7 +73,7 @@ const ManagePost = () => {
 
     try {
       const csrf = await api.get('http://localhost:5000/api/csrf-token');
-      console.log(csrf);
+
       await api.delete(`/posts/${postId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
