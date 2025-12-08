@@ -55,7 +55,7 @@ export const loginUser = async (req, res) => {
           "role": user.role 
         }
       }, process.env.JWT_SECRET, 
-      { expiresIn: '5m' }
+      { expiresIn: '5s' }
     );
     const refreshToken = jwt.sign(
       {
@@ -84,20 +84,33 @@ export const loginUser = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
+  console.log('Full req.user:', JSON.stringify(req.user, null, 2));
+  console.log('User ID:', req.user?.id);
+  
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ 
+      message: 'Unauthorized - no user info in token',
+    });
+  }
   
   try {
     const user = await User.findById(req.user.id).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found in database' });
+    }
+    
     res.json({ user });
   } catch (error) {
     console.error('Error fetching current user:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
-}
+};
 
 export const refreshAccessToken = (req, res) => {
   const token = req.cookies.refreshToken; // httpOnly cookie
 
+  console.log(req.cookies);
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
   jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, decode) => {
@@ -107,7 +120,7 @@ export const refreshAccessToken = (req, res) => {
     const newAccessToken = jwt.sign(
       { 
         userInfo: {
-          id: user._id.toString(),
+          id: user.id,
           "email": user.email, 
           "role": user.role 
         }
@@ -115,7 +128,6 @@ export const refreshAccessToken = (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "15s" } // short-lived access token
     );
-
     res.json({ accessToken: newAccessToken });
   });
 };
