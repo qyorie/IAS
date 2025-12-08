@@ -364,3 +364,30 @@ export const unbanUser = async (req, res) => {
     });
   }
 };
+
+export const deleteCommentByAdmin = async (req, res) => {
+  try {
+    const commentId = req.params.id;
+
+    // 1. Find the comment
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // 2. Remove the comment
+    await Comment.findByIdAndDelete(commentId);
+
+    // 3. Optional: remove reference from Post.comments array
+    await Post.findByIdAndUpdate(comment.post, {
+      $pull: { comments: commentId }
+    });
+
+    res.status(200).json({ message: "Comment deleted successfully (admin)" });
+
+  } catch (error) {
+    console.error("Admin delete comment error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

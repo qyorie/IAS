@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './Modal.jsx';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const LoginModal = ({ show, onClose }) => {
@@ -18,6 +19,7 @@ const LoginModal = ({ show, onClose }) => {
     const res =  await login(formData);
     if (!res.error) {
       onClose() 
+      toast.success("Login successful!");
       return
     };
     setError(res.error);

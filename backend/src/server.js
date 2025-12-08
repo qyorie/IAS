@@ -31,6 +31,12 @@ app.use(helmet({
   }
 }));
 
+app.use(helmet.hsts({
+  maxAge: 31536000, // 1 year
+  includeSubDomains: true
+}));
+
+
 // 2. CORS - Must be before other middleware
 app.use(cors({
   origin: process.env.CLIENT_URL,

@@ -81,8 +81,8 @@ const Home = () => {
   };
 
   const handleComment = (postId) => {
-    alert(`Open comments for post: ${postId}`);
-    console.log('Comment on post:', postId);
+    // Navigate to PostDetail and indicate that comment box should be focused
+    navigate(`/post/${postId}`, { state: { focusComment: true } });
   };
 
   const handleLogout = async () => {

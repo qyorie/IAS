@@ -21,10 +21,10 @@ const RegisterModal = ({ show, onClose }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [strength, setStrength] = useState({ label: '', color: '' });
+  const [touched, setTouched] = useState({ name: false, email: false, password: false });
 
   const handleChange = e => {
     const { name, value } = e.target;
-
     setFormData({ ...formData, [name]: value });
 
     if (name === "password") {
@@ -32,23 +32,60 @@ const RegisterModal = ({ show, onClose }) => {
     }
   };
 
-  const handleSubmit = async e => {
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+  };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email.toLowerCase());
+  };
+
+  const isPasswordValid = () => strength.label !== 'Weak';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Frontend validation
+    if (!formData.name.trim()) {
+      setError('Name is required.');
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!isPasswordValid()) {
+      setError('Password is too weak.');
+      return;
+    }
+
     try {
       const res = await api.post('/auth/register', formData);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
-
-      onClose();
-      alert('Registration successful! Please log in.');
+      if (res.data.success) {
+        onClose();
+        alert('Registration successful! Please log in.');
+      } else {
+        setError(res.data.error || 'Registration failed');
+      }
     } catch (err) {
-      setError(err.response.data.message);
+      setError(err.response?.data?.error || 'Registration failed');
     }
   };
 
   return (
-    <Modal show={show} onClose={onClose} title="Create Account">
+    <Modal 
+      show={show} 
+      onClose={ () => {
+        setFormData({ name: '', email: '', password: '' });
+        setStrength({ label: '', color: '' });
+        setError(''); 
+        onClose();}
+      } 
+      title="Create Account"
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* Name Field */}
@@ -58,8 +95,11 @@ const RegisterModal = ({ show, onClose }) => {
             name="name"
             type="text"
             placeholder="John Doe"
-            className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-green-500 outline-none"
+            className={`w-full border rounded-lg p-2 mt-1 focus:ring-2 outline-none
+              ${touched.name && !formData.name.trim() ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-green-500'}
+            `}
             onChange={handleChange}
+            onBlur={handleBlur}
             required
           />
         </div>
@@ -71,8 +111,11 @@ const RegisterModal = ({ show, onClose }) => {
             name="email"
             type="email"
             placeholder="email@example.com"
-            className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-green-500 outline-none"
+            className={`w-full border rounded-lg p-2 mt-1 focus:ring-2 outline-none
+              ${touched.email && !validateEmail(formData.email) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-green-500'}
+            `}
             onChange={handleChange}
+            onBlur={handleBlur}
             required
           />
         </div>
@@ -84,8 +127,11 @@ const RegisterModal = ({ show, onClose }) => {
             name="password"
             type="password"
             placeholder="••••••••"
-            className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-green-500 outline-none"
+            className={`w-full border rounded-lg p-2 mt-1 focus:ring-2 outline-none
+              ${touched.password && !isPasswordValid() ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-green-500'}
+            `}
             onChange={handleChange}
+            onBlur={handleBlur}
             required
           />
 

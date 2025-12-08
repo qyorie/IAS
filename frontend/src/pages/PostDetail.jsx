@@ -1,22 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from '../components/LoginModal.jsx';
 import RegisterModal from '../components/RegisterModal.jsx';
+import CommentSection from '../components/CommentSection.jsx';
 import api from '../api/axios.js';
+import toast from 'react-hot-toast';
+import { comment } from 'postcss';
 
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const commentBoxRef = useRef(null);
+  const focusComment = location.state?.focusComment || false;
 
   useEffect(() => {
-    fetchPost();
+    fetchPost().then(() => {
+      if (focusComment && commentBoxRef.current) {
+        commentBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        commentBoxRef.current.focus();
+      }
+    });
   }, [id]);
 
   const fetchPost = async () => {
@@ -42,22 +53,42 @@ const PostDetail = () => {
     }
 
     try {
+      const csrf = await api.get('/csrf-token');
+
       await api.post(
-        `/posts/${postId}/like`,
+        `/posts/${id}/like`,
         {},
         {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${localStorage.getItem("accessToken")}`,
             'Content-Type': 'application/json',
             'X-CSRF-Token': csrf.data.csrfToken
-          }
+          },
+          withCredentials: true,
         }
       );
-      fetchPost(); // Refresh post data
+
+      // update the likes locally
+      setPost((prev) => {
+        if (!prev) return prev;
+
+        const userLiked = prev.likes?.includes(user._id);
+        const newLikes = userLiked
+          ? prev.likes.filter(uid => uid !== user._id)
+          : [...(prev.likes || []), user._id];
+
+        return {
+          ...prev,
+          likes: newLikes
+        };
+      });
+
     } catch (err) {
       console.error('Error liking post:', err);
+      toast.error('Failed to update like');
     }
   };
+
 
   const handleDelete = async () => {
     if (!isAuthenticated) {
@@ -77,11 +108,11 @@ const PostDetail = () => {
           'X-CSRF-Token': csrf.data.csrfToken
         }
       });
-      alert('Post deleted successfully!');
+      toast.success('Post deleted successfully');
       navigate('/');
     } catch (err) {
       console.error('Error deleting post:', err);
-      alert('Failed to delete post');
+      toast.error('Failed deleting post');
     }
   };
 
@@ -96,11 +127,11 @@ const PostDetail = () => {
 
   const handleComment = () => {
     if (!isAuthenticated) {
-      alert('Please login to comment');
-      navigate('/login');
+      setShowLogin(true);
       return;
     }
-    alert('Comment feature coming soon!');
+    commentBoxRef.current?.scrollIntoView({ behavior: 'smooth' });
+    commentBoxRef.current?.focus();
   };
 
   if (loading) {
@@ -271,6 +302,7 @@ const PostDetail = () => {
             </button>
           </div>
         </article>
+        <CommentSection postId={post._id} inputRef={commentBoxRef}/>
       </main>
       <LoginModal show={showLogin} onClose={() => setShowLogin(false)} />
       <RegisterModal show={showRegister} onClose={() => setShowRegister(false)} />

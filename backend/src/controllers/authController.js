@@ -9,6 +9,9 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Please provide name, email, and password' });
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email format' });
+    }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -84,8 +87,6 @@ export const loginUser = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
-  console.log('Full req.user:', JSON.stringify(req.user, null, 2));
-  console.log('User ID:', req.user?.id);
   
   if (!req.user || !req.user.id) {
     return res.status(401).json({ 
@@ -110,13 +111,12 @@ export const getCurrentUser = async (req, res) => {
 export const refreshAccessToken = (req, res) => {
   const token = req.cookies.refreshToken; // httpOnly cookie
 
-  console.log(req.cookies);
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
   jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, decode) => {
     if (err) return res.status(401).json({ message: "Refresh token expired" });
     const user = decode.userInfo;
-    console.log("Refreshing token for user:", user);
+
     const newAccessToken = jwt.sign(
       { 
         userInfo: {
