@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import Modal from './Modal.jsx';
-import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { jwtDecode } from 'jwt-decode';
 
 const LoginModal = ({ show, onClose }) => {
-  const { setAccessToken, setRole } = useAuth();
+  const { setAccessToken, login } = useAuth();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -17,21 +15,12 @@ const LoginModal = ({ show, onClose }) => {
     e.preventDefault();
     setError("");
 
-    try {
-      const res = await api.post('/auth/login', formData);
-
-      const { accessToken } = res.data;
-
-      // Save token
-      localStorage.setItem("accessToken", accessToken);
-      setAccessToken(accessToken);
-      location.reload();
-      onClose();
-
-    } catch (err) {
-      console.error("Login error:", err);
-      setError(err.response?.data?.message || "Login failed. Try again.");
-    }
+    const res =  await login(formData);
+    if (!res.error) {
+      onClose() 
+      return
+    };
+    setError(res.error);
   };
 
   return (
