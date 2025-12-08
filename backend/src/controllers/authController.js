@@ -70,8 +70,8 @@ export const loginUser = async (req, res) => {
         
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,      // set false if testing on localhost without HTTPS
-      sameSite: 'Lax',  // set 'Lax' or 'Strict' if not cross-site
+      secure: true,      // set false if testing on localhost without HTTPS
+      sameSite: 'none',  // set 'Lax' or 'Strict' if not cross-site
       maxAge: 2 * 60 * 1000 // 5 minutes in milliseconds
     });
     return res.json({ accessToken });
