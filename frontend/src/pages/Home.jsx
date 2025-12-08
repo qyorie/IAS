@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, LogOut, User, MessageCircle } from 'lucide-react';
+import { Plus, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios.js';
 import PostCard from '../components/PostCard.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { user, logout, accessToken } = useAuth(); // Get user and logout from context
@@ -12,6 +13,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch posts from backend
   useEffect(() => {
@@ -54,7 +56,7 @@ const Home = () => {
   };
 
   const handleEdit = (post) => {
-    alert(`Edit post: ${post.title}`);
+    navigate(`post/${post._id}/edit`);
     console.log('Edit post:', post);
   };
 
@@ -73,8 +75,6 @@ const Home = () => {
           }
         }
       );
-
-      console.log('Post liked/unliked');
     } catch (err) {
       console.error('Error liking post:', err);
     }
@@ -87,7 +87,6 @@ const Home = () => {
 
   const handleLogout = async () => {
     await logout();
-    // ProtectedRoute will automatically redirect to /login
   };
 
   return (
