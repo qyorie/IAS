@@ -87,7 +87,8 @@ app.get("/api/csrf-token", csrfProtection, (req, res) => {
   res.cookie("XSRF-TOKEN", token, {
     httpOnly: false,   // must be readable by frontend
     sameSite: "none",
-    secure: true      // true in production with HTTPS
+    secure: true,      // true in production with HTTPS
+    partitioned: true
   });
 
   res.json({ csrfToken: token });

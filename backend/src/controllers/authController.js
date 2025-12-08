@@ -72,7 +72,8 @@ export const loginUser = async (req, res) => {
       httpOnly: true,
       secure: true,      // set false if testing on localhost without HTTPS
       sameSite: 'none',  // set 'Lax' or 'Strict' if not cross-site
-      maxAge: 2 * 60 * 1000 // 5 minutes in milliseconds
+      partitioned: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     return res.json({ accessToken });
   } catch (error) {
