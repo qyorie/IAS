@@ -29,7 +29,7 @@ const EditPost = () => {
   const fetchPost = async () => {
     try {
       setLoading(true);
-      const data = await api.get(`http://localhost:5000/api/posts/${id}`);
+      const data = await api.get(`/posts/${id}`);
       const post = data.data || data;
 
       // Check if user is author
@@ -107,8 +107,8 @@ const EditPost = () => {
     setSaving(true);
 
     try {
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
-      await api.put(`http://localhost:5000/api/posts/edit/${id}`, {
+      const csrf = await api.get('/csrf-token');
+      await api.put(`/posts/edit/${id}`, {
         title: formData.title.trim(),
         content: formData.content.trim()
       }, {

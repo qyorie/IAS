@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './Modal.jsx';
+import api from '../api/axios.js';
 
 // Utility to calculate password strength
 const getPasswordStrength = (password) => {
@@ -34,11 +35,7 @@ const RegisterModal = ({ show, onClose }) => {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const res = await api.post('/auth/register', formData);
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Registration failed');
@@ -46,7 +43,7 @@ const RegisterModal = ({ show, onClose }) => {
       onClose();
       alert('Registration successful! Please log in.');
     } catch (err) {
-      setError(err.message);
+      setError(err.response.data.message);
     }
   };
 

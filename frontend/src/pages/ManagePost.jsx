@@ -36,7 +36,7 @@ const ManagePost = () => {
       
       // Fetch all posts or user's posts based on role
       const endpoint = role === 'admin' ? '/admin/posts' : '/posts/my-posts';
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
 
       console.log('Fetching posts from endpoint:', endpoint);
       const res = await api.get(endpoint, {
@@ -72,7 +72,7 @@ const ManagePost = () => {
     }
 
     try {
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
 
       await api.delete(`/posts/${postId}`, {
         headers: {

@@ -23,7 +23,7 @@ const Home = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const data = await api.get('http://localhost:5000/api/posts/');
+      const data = await api.get('/posts/');
       setPosts(data.data || data);
       setError(null);
     } catch (err) {
@@ -40,7 +40,7 @@ const Home = () => {
     try {
       const csrf = await api.get('/csrf-token');
 
-      await api.delete(`http://localhost:5000/api/posts/${postId}`, {
+      await api.delete(`/posts/${postId}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'X-CSRF-Token': csrf.data.csrfToken
@@ -62,7 +62,7 @@ const Home = () => {
 
   const handleLike = async (postId) => {
     try {
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
 
       await api.post(
         `/posts/${postId}/like`,

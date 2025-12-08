@@ -22,7 +22,7 @@ const PostDetail = () => {
   const fetchPost = async () => {
     try {
       setLoading(true);
-      const data = await api.get(`http://localhost:5000/api/posts/${id}`);
+      const data = await api.get(`/posts/${id}`);
       // console.log('Fetched post:', data);
       setPost(data.data || data);
     } catch (err) {
@@ -42,7 +42,7 @@ const PostDetail = () => {
     }
 
     try {
-      await fetch(`http://localhost:5000/api/posts/${id}/like`, {
+      await fetch(`/posts/${id}/like`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -65,7 +65,7 @@ const PostDetail = () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
 
     try {
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
 
       await api.delete(`/posts/${id}`, {
         headers: {

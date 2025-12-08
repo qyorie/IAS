@@ -34,7 +34,7 @@ const CreatePost = () => {
       setLoading(true);
       setError('');
 
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
       await api.post(
         '/posts/create',
         formData,

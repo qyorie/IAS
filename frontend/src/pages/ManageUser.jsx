@@ -35,7 +35,7 @@ const ManageUser = () => {
 
   const handleBan = async (userId) => {
     try {
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
       await api.patch(
         `/admin/users/${userId}/ban`,
         {},
@@ -60,7 +60,7 @@ const ManageUser = () => {
   const handleDelete = async (userId) => {
     try {
       if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
-      const csrf = await api.get('http://localhost:5000/api/csrf-token');
+      const csrf = await api.get('/csrf-token');
       await api.delete(
         `/admin/users/${userId}`,
         {
