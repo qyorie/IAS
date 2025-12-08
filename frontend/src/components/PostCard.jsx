@@ -37,7 +37,7 @@ const PostCard = ({ post, currentUser, onDelete, onEdit, onLike, onComment }) =>
   };
 
   const handleCardClick = () => {
-    navigate(`/posts/${post._id}`);
+    navigate(`/post/${post._id}`);
   };
 
   const formatDate = (dateString) => {
