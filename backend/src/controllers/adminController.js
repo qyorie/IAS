@@ -154,9 +154,9 @@ export const deletePostByAdmin = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    
+
     // 1. PREVENT SELF-DELETION
-    if (userId === req.user.id || userId === req.user._id.toString()) {
+    if (userId === req.user.id || userId === req.user._id) {
       return res.status(403).json({
         success: false,
         error: 'You cannot delete your own account'
