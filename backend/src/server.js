@@ -140,13 +140,6 @@ app.use('*', (req, res) => {
 
 // ===== START SERVER =====
 
-connectDB().then(() => {
-  app.listen(process.env.PORT, () => {
-    console.log(`✓ Server running on port ${process.env.PORT}`);
-    console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`✓ Security: Helmet, XSS-Clean, Rate Limiting, CSRF enabled`);
-  });
-}).catch((error) => {
-  console.error('Failed to connect to database:', error);
-  process.exit(1);
-});
+await connectDB();
+
+export default app;
