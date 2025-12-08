@@ -40,6 +40,13 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
     
+    if (!user.isActive) {
+      return res.status(403).json({ 
+        message: 'Your account has been banned. Please contact support.',
+        banned: true
+      });
+    }
+    
     const accessToken = jwt.sign(
       {
         userInfo: {
