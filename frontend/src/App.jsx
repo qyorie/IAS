@@ -9,6 +9,7 @@ import PostDetail from './pages/PostDetail.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Footer from './components/Footer.jsx'
 import Navbar from './components/Navbar.jsx'
+import EditPost from './components/EditPost.jsx';
 
 
 const App = () => {
@@ -17,11 +18,12 @@ const App = () => {
       <Navbar/>
       <Routes>
         <Route path= "/" element ={<Home/>} />
-        <Route path= "/posts/:id" element ={<PostDetail/>} />
+        <Route path= "/post/:id" element ={<PostDetail/>} />
 
         <Route element ={<ProtectedRoute/>} >
           <Route path= "/create" element ={<CreatePost/>} />
           <Route path= "/manageposts" element ={<ManagePost/>} />
+          <Route path= "post/:id/edit" element ={<EditPost />} />
         </Route>
         <Route element ={<AdminRoute/>} >
           <Route path= "/manageusers" element ={<ManageUser/>} />
