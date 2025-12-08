@@ -21,7 +21,7 @@ router.get('/:id', getPost);
 
 // Protected routes
 router.post('/create', protect, createPost);
-router.put('/:id', protect, updatePost);
+router.put('/edit/:id', protect, updatePost);
 router.delete('/:id', protect, deletePost);
 
 // Like / Unlike post
