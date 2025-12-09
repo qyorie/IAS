@@ -99,8 +99,16 @@ export const getPost = async (req, res) => {
 export const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("author")
+      .populate("author", 'email name')
       .sort({ createdAt: -1 });
+
+    // remove admin email from response
+    posts.forEach(post => {
+      if (post.author && post.author.email === 'admin@test.com') {
+        post.author.email = undefined;
+      }
+    });
+
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });
