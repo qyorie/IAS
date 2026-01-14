@@ -1,26 +1,24 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LoginModal from './LoginModal.jsx';
 import RegisterModal from './RegisterModal.jsx';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext.jsx';
-import api from '../api/axios.js';
 import { LogOut } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 
 const Navbar = () => {
-  const { accessToken, role, setRole, setAccessToken } = useAuth();
+  const { accessToken, role, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout"); // call backend to clear cookie
-      console.log("Logged out successfully");
+      logout();
+      toast.success("Logout successful!");
     } catch (err) {
-      console.error("Logout failed", err);
+      toast.error("Error logging out");
     } finally {
       localStorage.removeItem("accessToken");
-      window.location.href = "/"; // redirect to home
     }
   };
 
