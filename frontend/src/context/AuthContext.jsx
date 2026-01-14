@@ -36,8 +36,9 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await api.get("/auth/me", {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      }, { withCredentials: true });
+        headers: { Authorization: `Bearer ${accessToken}` },
+        withCredentials: true
+      });
 
       const userData = response.data.user || response.data.data;
       setUser(userData);
