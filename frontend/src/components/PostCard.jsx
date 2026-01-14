@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Heart, MessageCircle, MoreVertical, Trash2, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
