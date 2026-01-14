@@ -13,12 +13,10 @@ const Navbar = () => {
   const [showRegister, setShowRegister] = useState(false);
   const handleLogout = async () => {
     try {
-      logout();
+      await logout();
       toast.success("Logout successful!");
     } catch (err) {
       toast.error("Error logging out");
-    } finally {
-      localStorage.removeItem("accessToken");
     }
   };
 
