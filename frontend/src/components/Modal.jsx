@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Modal = ({ show, onClose, title, children }) => {
   if (!show) return null;
 
